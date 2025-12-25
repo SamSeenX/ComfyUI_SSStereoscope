@@ -7,9 +7,9 @@ dependencies = ["numpy", "Pillow", "torch", "transformers>=4.51.0", "opencv-pyth
 keywords = ["stereoscopic", "3D", "SBS", "side-by-side", "depth-map", "VR", "virtual-reality", "ComfyUI", "depth-estimation", "3D-conversion", "depth-anything", "3D-video", "3D-image", "cross-eyed", "parallel-view", "AI-depth", "immersive", "no-glasses-3D"]
 
 [project.urls]
-Repository = "https://github.com/MrSamSeen/ComfyUI_SSStereoscope"
-Documentation = "https://github.com/MrSamSeen/ComfyUI_SSStereoscope#readme"
-Issues = "https://github.com/MrSamSeen/ComfyUI_SSStereoscope/issues"
+Repository = "https://github.com/SamSeenX/ComfyUI_SSStereoscope"
+Documentation = "https://github.com/SamSeenX/ComfyUI_SSStereoscope#readme"
+Issues = "https://github.com/SamSeenX/ComfyUI_SSStereoscope/issues"
 #  Used by Comfy Registry https://comfyregistry.org
 
 [tool.comfy]

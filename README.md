@@ -13,9 +13,9 @@
   <p>No external depth maps or separate video processing tools needed - everything is handled automatically in one seamless workflow!</p>
 </div>
 
-<img width="1254" alt="simple_workflow" src="https://github.com/MrSamSeen/ComfyUI_SSStereoscope/assets/8541558/a7ae4c8b-6c38-47b2-a280-84cd851ef254">
+<img width="1254" alt="simple_workflow" src="https://github.com/SamSeenX/ComfyUI_SSStereoscope/assets/8541558/a7ae4c8b-6c38-47b2-a280-84cd851ef254">
 
-<img width="1254" alt="simple_workflow" src="https://github.com/MrSamSeen/ComfyUI_SSStereoscope/assets/8541558/45016b16-81b7-430c-81a5-ec63627398e8">
+<img width="1254" alt="simple_workflow" src="https://github.com/SamSeenX/ComfyUI_SSStereoscope/assets/8541558/45016b16-81b7-430c-81a5-ec63627398e8">
 
 <p>Welcome to the SideBySide Node repository for ComfyUI! 🚀 Elevate your AI-generated content with stunning stereoscopic 3D effects! This powerful depth-estimation node transforms ordinary 2D images into immersive side-by-side (SBS) experiences with automatic depth perception. Perfect for creating eye-catching virtual reality content, 3D videos, and image sequences that leap off the screen with realistic depth!</p>
 
@@ -40,7 +40,7 @@
 
 <h2>Installation for 3D Content Creation</h2>
 <p>To install this stereoscopic 3D ComfyUI extension, clone the repository and add it to the custom_nodes folder in your ComfyUI installation directory:</p>
-<pre>git clone https://github.com/MrSamSeen/ComfyUI_SSStereoscope.git
+<pre>git clone https://github.com/SamSeenX/ComfyUI_SSStereoscope.git
 cd ComfyUI_SSStereoscope
 pip install -r requirements.txt
 </pre>
@@ -161,11 +161,11 @@ tqdm                  # Progress tracking for batch processing
 
 <h2>Stereoscopic 3D Workflow Examples</h2>
 <p>Create professional-quality side-by-side 3D content with these example ComfyUI workflows:</p>
-<img width="1254" alt="3D conversion workflow with depth estimation" src="https://github.com/MrSamSeen/ComfyUI_SSStereoscope/assets/8541558/6b972838-07ca-4e64-a3a4-32277ddcf4c7">
+<img width="1254" alt="3D conversion workflow with depth estimation" src="https://github.com/SamSeenX/ComfyUI_SSStereoscope/assets/8541558/6b972838-07ca-4e64-a3a4-32277ddcf4c7">
 <p><em>Basic stereoscopic workflow: Generate depth maps automatically and create immersive 3D content with AI-powered depth perception</em></p>
 
 <h2>Advanced 3D Content Creation Workflow</h2>
-<img width="696" alt="Advanced stereoscopic processing pipeline" src="https://github.com/MrSamSeen/ComfyUI_SSStereoscope/assets/8541558/1272a5ad-9d12-4b86-8284-08bbe48bd116">
+<img width="696" alt="Advanced stereoscopic processing pipeline" src="https://github.com/SamSeenX/ComfyUI_SSStereoscope/assets/8541558/1272a5ad-9d12-4b86-8284-08bbe48bd116">
 <p><em>Enhanced 3D generation workflow: Combine multiple processing steps for professional stereoscopic results with precise depth control</em></p>
 
 <h2>Complete 3D Video Processing Workflow</h2>
@@ -179,25 +179,25 @@ tqdm                  # Progress tracking for batch processing
 
 <h2>Stereoscopic 3D Gallery</h2>
 <p>Examples of side-by-side 3D images created with our depth-aware image processing technology:</p>
-<img width="1254" alt="Stereoscopic landscape with depth perception" src="https://github.com/MrSamSeen/ComfyUI_SSStereoscope/assets/8541558/ee30f773-bb90-420f-a1a2-25459b678bbe">
+<img width="1254" alt="Stereoscopic landscape with depth perception" src="https://github.com/SamSeenX/ComfyUI_SSStereoscope/assets/8541558/ee30f773-bb90-420f-a1a2-25459b678bbe">
 <p><em>Landscape with AI-generated depth map for immersive stereoscopic viewing</em></p>
 
-<img width="1254" alt="Side-by-side 3D portrait with binocular vision effect" src="https://github.com/MrSamSeen/ComfyUI_SSStereoscope/assets/8541558/e702dde6-b675-4ff6-842c-1c32116be313">
+<img width="1254" alt="Side-by-side 3D portrait with binocular vision effect" src="https://github.com/SamSeenX/ComfyUI_SSStereoscope/assets/8541558/e702dde6-b675-4ff6-842c-1c32116be313">
 <p><em>Portrait with enhanced depth perception for realistic 3D effect</em></p>
 
-<img width="1254" alt="Virtual reality compatible stereoscopic image" src="https://github.com/MrSamSeen/ComfyUI_SSStereoscope/assets/8541558/022223be-fd55-400a-a1ba-38628265a119">
+<img width="1254" alt="Virtual reality compatible stereoscopic image" src="https://github.com/SamSeenX/ComfyUI_SSStereoscope/assets/8541558/022223be-fd55-400a-a1ba-38628265a119">
 <p><em>VR-ready stereoscopic image with optimized depth for comfortable viewing</em></p>
 
-<img width="1254" alt="Cross-eyed viewing 3D image with depth map" src="https://github.com/MrSamSeen/ComfyUI_SSStereoscope/assets/8541558/e711ba22-a393-4580-ad37-43934373e835">
+<img width="1254" alt="Cross-eyed viewing 3D image with depth map" src="https://github.com/SamSeenX/ComfyUI_SSStereoscope/assets/8541558/e711ba22-a393-4580-ad37-43934373e835">
 <p><em>Detailed scene with precise depth estimation for cross-eyed free-viewing</em></p>
 
-<img width="1254" alt="Side-by-side 3D animation frame with depth" src="https://github.com/MrSamSeen/ComfyUI_SSStereoscope/assets/8541558/59ff5c1c-ceda-42d9-a8eb-b27ffbb0e8ca">
+<img width="1254" alt="Side-by-side 3D animation frame with depth" src="https://github.com/SamSeenX/ComfyUI_SSStereoscope/assets/8541558/59ff5c1c-ceda-42d9-a8eb-b27ffbb0e8ca">
 <p><em>Animation frame converted to stereoscopic 3D with automatic depth extraction</em></p>
 
-<img width="1254" alt="Immersive stereoscopic scene with AI depth" src="https://github.com/MrSamSeen/ComfyUI_SSStereoscope/assets/8541558/8b6d7c5e-aefc-4f22-9872-73b690514497">
+<img width="1254" alt="Immersive stereoscopic scene with AI depth" src="https://github.com/SamSeenX/ComfyUI_SSStereoscope/assets/8541558/8b6d7c5e-aefc-4f22-9872-73b690514497">
 <p><em>Complex scene with AI-powered depth perception for immersive stereoscopic experience</em></p>
 
-<img width="1254" alt="Professional 3D content for specialized displays" src="https://github.com/MrSamSeen/ComfyUI_SSStereoscope/assets/8541558/46182b48-f5cb-4d6f-9ae9-ba727da92569">
+<img width="1254" alt="Professional 3D content for specialized displays" src="https://github.com/SamSeenX/ComfyUI_SSStereoscope/assets/8541558/46182b48-f5cb-4d6f-9ae9-ba727da92569">
 <p><em>Professional-quality stereoscopic image optimized for 3D displays and VR headsets</em></p>
 
 <p><a href="https://civitai.com/models/546410?modelVersionId=607731">Explore more stereoscopic 3D examples on CivitAI</a></p>
