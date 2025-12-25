@@ -1,7 +1,7 @@
 [project]
 name = "comfyui_ssstereoscope_bysamseen"
 description = "Create immersive 3D stereoscopic images and videos! Transform your ComfyUI generations into stunning side-by-side 3D visuals for videos and image sequences. Powered by Depth-Anything-V2, no external depth maps needed. Perfect for VR, 3D displays, and cross-eyed viewing - no special glasses required!"
-version = "1.1.0"
+version = "1.1.1"
 license = "LICENSE"
 dependencies = ["numpy", "Pillow", "torch", "transformers>=4.51.0", "opencv-python", "tqdm"]
 keywords = ["stereoscopic", "3D", "SBS", "side-by-side", "depth-map", "VR", "virtual-reality", "ComfyUI", "depth-estimation", "3D-conversion", "depth-anything", "3D-video", "3D-image", "cross-eyed", "parallel-view", "AI-depth", "immersive", "no-glasses-3D"]
