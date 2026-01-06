@@ -1,7 +1,6 @@
 import torch
 from PIL import Image
 import numpy as np
-import tqdm
 import os
 import sys
 import cv2
@@ -190,13 +189,13 @@ class SBS_V2_by_SamSeen:
             if hasattr(self, 'original_depths') and len(self.original_depths) > b:
                 # Use the original grayscale depth map for this image in the batch
                 depth_for_sbs = self.original_depths[b].copy()
-                print(f"Using original depth map for image {b+1}/{B}: shape={depth_for_sbs.shape}, min={np.min(depth_for_sbs)}, max={np.max(depth_for_sbs)}")
+                #print(f"Using original depth map for image {b+1}/{B}: shape={depth_for_sbs.shape}, min={np.min(depth_for_sbs)}, max={np.max(depth_for_sbs)}")
             else:
                 # If original depth is not available, extract from the colored version
                 current_depth_map = depth_map[b].cpu().numpy()  # Get depth map b from batch
 
                 # Debug info
-                print(f"Depth map shape: {current_depth_map.shape}, min: {current_depth_map.min()}, max: {current_depth_map.max()}, mean: {current_depth_map.mean()}")
+                #print(f"Depth map shape: {current_depth_map.shape}, min: {current_depth_map.min()}, max: {current_depth_map.max()}, mean: {current_depth_map.mean()}")
 
                 # If we have a colored depth map, use the red channel (which should have our depth values)
                 if len(current_depth_map.shape) == 3 and current_depth_map.shape[2] == 3:
@@ -206,53 +205,67 @@ class SBS_V2_by_SamSeen:
 
             # Invert depth if requested (swap foreground/background)
             if invert_depth:
-                print("Inverting depth map (swapping foreground/background)")
+                # print("Inverting depth map (swapping foreground/background)")
                 depth_for_sbs = 1.0 - depth_for_sbs
 
-            # Convert the depth map to a PIL image for processing
+            # Convert PIL image to numpy array for much faster access
+            img_array = np.array(current_image_pil)
+            
+            # Convert the depth map to a numpy array for processing
             depth_map_img = Image.fromarray((depth_for_sbs * 255).astype(np.uint8), mode='L')
 
             # Get dimensions and resize depth map to match base image
             width, height = current_image_pil.size
             depth_map_img = depth_map_img.resize((width, height), Image.NEAREST)
+            
+            # Convert depth map to numpy array for fast access
+            depth_array = np.array(depth_map_img)
+            
             fliped = 0 if mode == "Parallel" else width
 
             # Create an empty image for the side-by-side result
             sbs_image = np.zeros((height, width * 2, 3), dtype=np.uint8)
-            depth_scaling = depth_scale / width
+            depth_scaling = (depth_scale*10) / width
             pbar = ProgressBar(height)
 
-            # Fill the base images
-            for y in range(height):
-                for x in range(width):
-                    color = current_image_pil.getpixel((x, y))
-                    sbs_image[y, width + x] = color
-                    sbs_image[y, x] = color
+            # Fill the base images using numpy array slicing 
+            sbs_image[:, :width] = img_array
+            sbs_image[:, width:width*2] = img_array
 
-            # generating the shifted image
-            for y in tqdm.tqdm(range(height)):
+            # Precompute ALL pixel shifts at once 
+            pixel_shifts = (depth_array * depth_scaling).astype(np.int32)
+            
+            # Clamp shifts to valid range
+            pixel_shifts = np.clip(pixel_shifts, 0, width - 1)
+            
+            print(f"Generating shifted image with vectorized approach...")
+            
+            # Process from back to front (right to left) to avoid overwriting source pixels
+            # This mimics the fill behavior of the original loop
+            for x in range(width - 1, -1, -1):
                 pbar.update(1)
-                for x in range(width):
-                    try:
-                        depth_value = depth_map_img.getpixel((x, y))
-                        if isinstance(depth_value, tuple):
-                            depth_value = depth_value[0]
-                        pixel_shift = int(depth_value * depth_scaling)
-
-                        new_x = x + pixel_shift
-
-                        if new_x >= width:
-                            new_x = width - 1
-                        if new_x < 0:
-                            new_x = 0
-
-                        for i in range(pixel_shift+10):
-                            if new_x + i >= width or new_x < 0:
-                                break
-                            new_coords = (y, new_x + i + fliped)
-                            sbs_image[new_coords] = current_image_pil.getpixel((x, y))
-                    except Exception as e:
-                        print(f"Error processing pixel at ({x}, {y}): {e}")
+                # Get the column of pixels and their shifts
+                source_pixels = img_array[:, x, :]  # Shape: (height, 3)
+                shifts = pixel_shifts[:, x]  # Shape: (height,)
+                
+                # Calculate target x positions
+                target_x = x + shifts
+                
+                # For each unique shift amount, we need to fill a range
+                # This vectorizes the inner "for i in range(pixel_shift+10)" loop
+                for fill_offset in range(10):
+                    fill_x = target_x + fill_offset
+                    
+                    # Create a mask for valid positions
+                    valid_mask = (fill_x >= 0) & (fill_x < width)
+                    
+                    # Get the valid indices
+                    valid_rows = np.where(valid_mask)[0]
+                    valid_x = fill_x[valid_mask]
+                    
+                    if len(valid_rows) > 0:
+                        # Apply the shift with fill for all valid positions at once
+                        sbs_image[valid_rows, valid_x + fliped] = source_pixels[valid_rows]
 
             # Convert to tensor
             sbs_image_tensor = torch.tensor(sbs_image.astype(np.float32) / 255.0)
