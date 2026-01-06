@@ -15,5 +15,5 @@ Issues = "https://github.com/SamSeenX/ComfyUI_SSStereoscope/issues"
 [tool.comfy]
 PublisherId = "samseen"
 DisplayName = "SideBySide_Stereoscope"
-Icon = "sbs_icon.png"
+Icon = "https://raw.githubusercontent.com/SamSeenX/ComfyUI_SSStereoscope/main/sbs_icon.png"
 Tags = ["3D", "stereoscopic", "depth-map", "VR", "video", "image-sequence", "depth-anything"]
