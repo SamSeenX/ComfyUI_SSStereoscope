@@ -14,6 +14,7 @@ The SideBySide Stereoscope Node is a cutting-edge 2D-to-3D conversion tool desig
 - 🎥 **Video Support** - Full workflow for converting videos to 3D (upload, process, combine).
 - 🎛️ **Fine Control** - Adjust depth scale, blur radius, and depth inversion.
 - ⚡ **Integrated Workflow** - No external tools needed; handles everything within ComfyUI.
+- 🚀 **Performance Mode** - Optional "HighSodium Optimization" for up to 4x faster processing.
 
 ## 📸 Demo
 
@@ -51,6 +52,7 @@ The SideBySide Stereoscope Node is a cutting-edge 2D-to-3D conversion tool desig
 - **👀 SBS V2**: The main node. Input a 2D image, get a 3D SBS image + depth map.
     - `depth_scale`: Intensity of the 3D effect.
     - `mode`: Cross-eyed vs Parallel.
+    - `highsodium_optimization`: Enable vectorized algorithm for faster processing (may produce slightly different results).
 - **👀 SBS Video Uploader**: Converts input video to image sequence.
 - **👀 SBS Video Combiner**: Merges processed frames back into a video.
 
@@ -79,6 +81,11 @@ Contributions are welcome!
 3. Commit your changes
 4. Push to the branch
 5. Open a Pull Request
+
+### Contributors
+
+- [SamSeen](https://github.com/SamSeenX) - Original Author
+- [HighSodium](https://github.com/HighSodium) - Performance optimization ([PR #16](https://github.com/SamSeenX/ComfyUI_SSStereoscope/pull/16))
 
 ## 📝 License
 

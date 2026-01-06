@@ -7,6 +7,14 @@ import sys
 import cv2
 from comfy.utils import ProgressBar
 
+# =============================================================================
+# CONTRIBUTORS
+# =============================================================================
+# - SamSeen (Original Author)
+# - HighSodium (https://github.com/HighSodium) - Optimized depth map handling
+#   and vectorized image generation algorithm (PR #16)
+# =============================================================================
+
 # Add the current directory to the path so we can import local modules
 current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
@@ -49,6 +57,7 @@ class SBS_V2_by_SamSeen:
                 "blur_radius": ("INT", {"default": 3, "min": 1, "max": 51, "step": 2}),
                 "invert_depth": ("BOOLEAN", {"default": False}),
                 "mode": (["Parallel", "Cross-eyed"], {"default": "Cross-eyed"}),
+                "highsodium_optimization": ("BOOLEAN", {"default": False, "label_on": "Fast (HighSodium)", "label_off": "Legacy"}),
             }
         }
 
@@ -146,7 +155,7 @@ class SBS_V2_by_SamSeen:
             print(f"Creating blank depth map with shape: {(B, H, W, C)}")
             return torch.zeros((B, H, W, C), dtype=torch.float32)
 
-    def process(self, base_image, depth_scale, blur_radius, invert_depth=False, mode="Cross-eyed"):
+    def process(self, base_image, depth_scale, blur_radius, invert_depth=False, mode="Cross-eyed", highsodium_optimization=False):
         """
         Create a side-by-side (SBS) stereoscopic image from a standard image or image sequence.
         The depth map is automatically generated using our custom depth estimation approach.
@@ -157,6 +166,7 @@ class SBS_V2_by_SamSeen:
         - blur_radius: integer controlling the smoothness of the depth map.
         - invert_depth: boolean to invert the depth map (swap foreground/background).
         - mode: "Parallel" or "Cross-eyed" viewing mode.
+        - highsodium_optimization: Use HighSodium's vectorized algorithm (faster, but may produce slightly different results).
 
         Returns:
         - sbs_image: the stereoscopic image(s).
@@ -220,39 +230,93 @@ class SBS_V2_by_SamSeen:
             # Create an empty image for the side-by-side result
             sbs_image = np.zeros((height, width * 2, 3), dtype=np.uint8)
             depth_scaling = depth_scale / width
-            pbar = ProgressBar(height)
 
-            # Fill the base images
-            for y in range(height):
-                for x in range(width):
-                    color = current_image_pil.getpixel((x, y))
-                    sbs_image[y, width + x] = color
-                    sbs_image[y, x] = color
+            if highsodium_optimization:
+                # =============================================================
+                # HighSodium's Optimized Algorithm (PR #16)
+                # Uses NumPy vectorization for significant speed improvements
+                # Credit: https://github.com/HighSodium
+                # =============================================================
+                print("Using HighSodium optimization (vectorized algorithm)...")
+                
+                # Convert to numpy arrays for fast access
+                img_array = np.array(current_image_pil)
+                depth_array = np.array(depth_map_img)
+                
+                # Fill the base images using numpy array slicing (much faster)
+                sbs_image[:, :width] = img_array
+                sbs_image[:, width:width*2] = img_array
+                
+                # Precompute ALL pixel shifts at once (vectorized)
+                pixel_shifts = (depth_array * depth_scaling).astype(np.int32)
+                
+                # Clamp shifts to valid range
+                pixel_shifts = np.clip(pixel_shifts, 0, width - 1)
+                
+                pbar = ProgressBar(width)
+                
+                # Process column by column (right to left for proper layering)
+                for x in range(width - 1, -1, -1):
+                    pbar.update(1)
+                    # Get the column of pixels and their shifts
+                    source_pixels = img_array[:, x, :]  # Shape: (height, 3)
+                    shifts = pixel_shifts[:, x]  # Shape: (height,)
+                    
+                    # Calculate target x positions
+                    target_x = x + shifts
+                    
+                    # Fill range (fixed 10 for optimization)
+                    for fill_offset in range(10):
+                        fill_x = target_x + fill_offset
+                        
+                        # Create a mask for valid positions
+                        valid_mask = (fill_x >= 0) & (fill_x < width)
+                        
+                        # Get the valid indices
+                        valid_rows = np.where(valid_mask)[0]
+                        valid_x = fill_x[valid_mask]
+                        
+                        if len(valid_rows) > 0:
+                            # Apply the shift with fill for all valid positions at once
+                            sbs_image[valid_rows, valid_x + fliped] = source_pixels[valid_rows]
+            else:
+                # =============================================================
+                # Legacy Algorithm (Original)
+                # Pixel-by-pixel processing, slower but produces original output
+                # =============================================================
+                pbar = ProgressBar(height)
+                
+                # Fill the base images
+                for y in range(height):
+                    for x in range(width):
+                        color = current_image_pil.getpixel((x, y))
+                        sbs_image[y, width + x] = color
+                        sbs_image[y, x] = color
 
-            # generating the shifted image
-            for y in tqdm.tqdm(range(height)):
-                pbar.update(1)
-                for x in range(width):
-                    try:
-                        depth_value = depth_map_img.getpixel((x, y))
-                        if isinstance(depth_value, tuple):
-                            depth_value = depth_value[0]
-                        pixel_shift = int(depth_value * depth_scaling)
+                # Generate the shifted image
+                for y in tqdm.tqdm(range(height)):
+                    pbar.update(1)
+                    for x in range(width):
+                        try:
+                            depth_value = depth_map_img.getpixel((x, y))
+                            if isinstance(depth_value, tuple):
+                                depth_value = depth_value[0]
+                            pixel_shift = int(depth_value * depth_scaling)
 
-                        new_x = x + pixel_shift
+                            new_x = x + pixel_shift
 
-                        if new_x >= width:
-                            new_x = width - 1
-                        if new_x < 0:
-                            new_x = 0
+                            if new_x >= width:
+                                new_x = width - 1
+                            if new_x < 0:
+                                new_x = 0
 
-                        for i in range(pixel_shift+10):
-                            if new_x + i >= width or new_x < 0:
-                                break
-                            new_coords = (y, new_x + i + fliped)
-                            sbs_image[new_coords] = current_image_pil.getpixel((x, y))
-                    except Exception as e:
-                        print(f"Error processing pixel at ({x}, {y}): {e}")
+                            for i in range(pixel_shift+10):
+                                if new_x + i >= width or new_x < 0:
+                                    break
+                                new_coords = (y, new_x + i + fliped)
+                                sbs_image[new_coords] = current_image_pil.getpixel((x, y))
+                        except Exception as e:
+                            print(f"Error processing pixel at ({x}, {y}): {e}")
 
             # Convert to tensor
             sbs_image_tensor = torch.tensor(sbs_image.astype(np.float32) / 255.0)
