@@ -416,11 +416,31 @@ class SBSVideoCombiner:
 
         # Add format-specific options
         if format == "mp4":
-            ffmpeg_cmd.extend([
-                "-c:v", "libx264",
-                "-pix_fmt", "yuv420p",
-                "-crf", "23"  # Quality setting (lower is better)
-            ])
+            # Check for libx264 support
+            use_libx264 = False
+            try:
+                # Simple check if libx264 is available in encoders list
+                result = subprocess.run([ffmpeg_path, "-encoders"], capture_output=True, text=True)
+                if "libx264" in result.stdout:
+                    use_libx264 = True
+            except:
+                # If check fails, assume standard ffmpeg with libx264
+                use_libx264 = True
+
+            if use_libx264:
+                ffmpeg_cmd.extend([
+                    "-c:v", "libx264",
+                    "-pix_fmt", "yuv420p",
+                    "-crf", "23"  # Quality setting (lower is better)
+                ])
+            else:
+                # Fallback to libopenh264 (often found in conda/anaconda non-GPL builds)
+                print("libx264 not found, attempting fallback to libopenh264...")
+                ffmpeg_cmd.extend([
+                    "-c:v", "libopenh264",
+                    "-pix_fmt", "yuv420p",
+                    "-b:v", "5M" 
+                ])
         elif format == "webm":
             ffmpeg_cmd.extend([
                 "-c:v", "libvpx-vp9",
@@ -433,6 +453,7 @@ class SBSVideoCombiner:
             ])
 
         # Add audio if provided
+        audio_path = None
         if audio is not None:
             # Create a temporary WAV file for the audio
             audio_path = os.path.join(folder_paths.get_temp_directory(), "temp_audio.wav")
@@ -447,13 +468,17 @@ class SBSVideoCombiner:
                 # Convert from torch tensor to numpy array
                 audio_data = waveform.squeeze(0).transpose(0, 1).cpu().numpy()
                 scipy.io.wavfile.write(audio_path, sample_rate, audio_data)
-
-                # Add audio to ffmpeg command
-                ffmpeg_cmd.extend([
-                    "-i", audio_path,
-                    "-c:a", "aac" if format != "webm" else "libopus",
-                    "-shortest"  # End when the shortest input stream ends
-                ])
+                
+                # Verify file was actually created before adding to command
+                if os.path.exists(audio_path):
+                    # Add audio to ffmpeg command
+                    ffmpeg_cmd.extend([
+                        "-i", audio_path,
+                        "-c:a", "aac" if format != "webm" else "libopus",
+                        "-shortest"  # End when the shortest input stream ends
+                    ])
+                else:
+                     print(f"Warning: Audio file could not be created at {audio_path}")
             except Exception as e:
                 print(f"Warning: Could not add audio to video: {e}")
 
@@ -462,18 +487,21 @@ class SBSVideoCombiner:
 
         # Run ffmpeg
         try:
+            print(f"Running ffmpeg command: {' '.join(ffmpeg_cmd)}")
             subprocess.run(ffmpeg_cmd, check=True, capture_output=True)
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(f"Error creating video: {e.stderr.decode()}")
+            err_msg = e.stderr.decode()
+            print(f"FFmpeg error: {err_msg}")
+            raise RuntimeError(f"Error creating video: {err_msg}")
 
         # Clean up temporary files
-        for i in range(images.size(0)):
+        for i in range(len(images)):
             try:
                 os.remove(os.path.join(temp_dir, f"frame_{i:05d}.png"))
             except:
                 pass
 
-        if audio is not None and os.path.exists(audio_path):
+        if audio_path is not None and os.path.exists(audio_path):
             try:
                 os.remove(audio_path)
             except:
