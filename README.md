@@ -26,6 +26,10 @@ The SideBySide Stereoscope Node is a cutting-edge 2D-to-3D conversion tool desig
 
 - ComfyUI installed
 - Python >= 3.8
+- **FFmpeg** (Recommended for video support)
+  - The node attempts to use your system's FFmpeg first.
+  - If missing, it will fallback to the `imageio-ffmpeg` binary (included in dependencies).
+  - **Windows Users**: For best performance, install FFmpeg manually from [ffmpeg.org](https://ffmpeg.org/download.html) and ensure it is added to your System PATH.
 
 ### Installation
 
@@ -43,16 +47,16 @@ The SideBySide Stereoscope Node is a cutting-edge 2D-to-3D conversion tool desig
     ```
 4.  Restart ComfyUI.
 
-*(Note: The AI model will download automatically on first use.)*
+_(Note: The AI model will download automatically on first use.)_
 
 ## 📖 Documentation
 
 ### Core Nodes
 
 - **👀 SBS V2**: The main node. Input a 2D image, get a 3D SBS image + depth map.
-    - `depth_scale`: Intensity of the 3D effect.
-    - `mode`: Cross-eyed vs Parallel.
-    - `highsodium_optimization`: Enable vectorized algorithm for faster processing (may produce slightly different results).
+  - `depth_scale`: Intensity of the 3D effect.
+  - `mode`: Cross-eyed vs Parallel.
+  - `highsodium_optimization`: Enable vectorized algorithm for faster processing (may produce slightly different results).
 - **👀 SBS Video Uploader**: Converts input video to image sequence.
 - **👀 SBS Video Combiner**: Merges processed frames back into a video.
 
