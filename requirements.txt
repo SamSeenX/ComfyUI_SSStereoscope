@@ -10,3 +10,5 @@ timm>=0.6.12
 transformers>=4.51.0
 opencv-python>=4.5.0
 scipy>=1.7.0
+imageio>=2.0.0
+imageio-ffmpeg>=0.4.0
