@@ -76,6 +76,22 @@ except ImportError:
             CATEGORY = "👀 SamSeen"
             def error(self, error):
                 return (f"ERROR: {error}",)
+# Import the VR panorama node
+try:
+    from .sbs_vr_panorama import SBS_VR_Panorama_by_SamSeen
+    print("Successfully imported SBS_VR_Panorama_by_SamSeen")
+except Exception as e:
+    print(f"Error importing SBS_VR_Panorama_by_SamSeen: {e}")
+    # Create a placeholder class
+    class SBS_VR_Panorama_by_SamSeen:
+        @classmethod
+        def INPUT_TYPES(s):
+            return {"required": {"error": ("STRING", {"default": "Error loading SBS_VR_Panorama_by_SamSeen"})}}
+        RETURN_TYPES = ("STRING",)
+        FUNCTION = "error"
+        CATEGORY = "👀 SamSeen"
+        def error(self, error):
+            return (f"ERROR: {error}",)
 
 # Define the node mappings
 NODE_CLASS_MAPPINGS = {
@@ -83,7 +99,8 @@ NODE_CLASS_MAPPINGS = {
     "SBS_V2_by_SamSeen": SBS_V2_by_SamSeen,
     "SBS_Video_Uploader": SBSVideoUploader,
     "SBS_Image_Uploader": SBSImageUploader,
-    "SBS_Video_Combiner": SBSVideoCombiner
+    "SBS_Video_Combiner": SBSVideoCombiner,
+    "SBS_VR_Panorama_by_SamSeen": SBS_VR_Panorama_by_SamSeen
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -91,7 +108,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "SBS_V2_by_SamSeen": "👀 SBS V2 by SamSeen",
     "SBS_Video_Uploader": "👀 SBS Video Uploader by SamSeen",
     "SBS_Image_Uploader": "👀 SBS Image Uploader by SamSeen",
-    "SBS_Video_Combiner": "👀 SBS Video Combiner by SamSeen"
+    "SBS_Video_Combiner": "👀 SBS Video Combiner by SamSeen",
+    "SBS_VR_Panorama_by_SamSeen": "👀 SBS VR Panorama by SamSeen"
 }
 
 # Define the web directory for custom UI components
