@@ -1,6 +1,22 @@
 # Changelog
 
-# Changelog
+## [2.1.6] - 2026-02-14
+
+### Added
+
+- **Gap Fill Modes & Inpainting (SBS V2.1)**:
+  - Added `gap_fill_mode` dropdown to handle occlusion gaps ("holes") caused by high depth.
+  - **Inpaint (Telea)**: (Default) Uses internal OpenCV fast inpainting to fill gaps with smooth textures. Removes streaks without leaving holes.
+  - **Stretch**: Legacy behavior. Stretches the last pixel to cover the gap. Fast but creates "streaking" artifacts.
+  - **None**: Leaves gaps as **Black Holes**. Useful if you want to use the Mask output for external inpainting.
+- **Output Layout Options**:
+  - Added `stereo_layout` dropdown.
+  - **Side by Side**: (Default) Standard horizontal layout.
+  - **Top Bottom**: Vertical layout (Left/Top, Right/Bottom or inverted for cross-eyed).
+- **Gap Mask Output**:
+  - New `MASK` return output (`gap_mask`).
+  - Provides a white mask (1.0) where gaps/holes are.
+  - Useful for advanced workflows using generative inpainting (KSampler) to fix disocclusions.
 
 ## [2.1.5] - 2026-02-13
 
