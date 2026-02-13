@@ -59,7 +59,10 @@ _(Note: The AI model will download automatically on first use.)_
   - `highsodium_optimization`: Enable vectorized algorithm for faster processing (may produce slightly different results).
 - **👀 SBS V2.1 (External Depth)**: _New in v2.1!_ Uses the fast V2 engine (HighSodium) but accepts your custom Depth Maps.
   - Fixes "reducing" artifacts found in the legacy node.
-  - Supports `depth_scale` up to 200.
+  - **Resolution-Relative Scaling**: `depth_scale` (0-100) now maps to **0-20% of image width**. This gives you fine-grained control while preventing output-breaking values.
+    - Scale 10 = 2% width separation.
+    - Scale 50 = 10% width separation.
+    - Scale 100 = 20% width separation (Max).
 - **👀 SBS Video Uploader**: Converts input video to image sequence.
 - **👀 SBS Video Combiner**: Merges processed frames back into a video.
 

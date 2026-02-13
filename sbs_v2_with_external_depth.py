@@ -14,7 +14,7 @@ class SBS_V2_External_Depth_by_SamSeen:
             "required": {
                 "base_image": ("IMAGE",),
                 "depth_map": ("IMAGE",),
-                "depth_scale": ("FLOAT", {"default": 30.0, "min": 1.0, "max": 200.0, "step": 0.5}),
+                "depth_scale": ("FLOAT", {"default": 5.0, "min": 0.1, "max": 100.0, "step": 0.1, "display": "slider"}),
                 "blur_radius": ("INT", {"default": 3, "min": 1, "max": 51, "step": 2}),
                 "invert_depth": ("BOOLEAN", {"default": False}),
                 "mode": (["Parallel", "Cross-eyed"], {"default": "Cross-eyed"}),
@@ -70,7 +70,13 @@ class SBS_V2_External_Depth_by_SamSeen:
             
             # Create empty SBS image canvas
             sbs_image = np.zeros((height, width * 2, 3), dtype=np.uint8)
-            depth_scaling = depth_scale / width
+            
+            # Resolution-Relative Depth Scaling
+            # depth_scale (0-100) maps to 0-20% of image width
+            # Formula: width * (depth_scale / 100) / 5
+            max_shift_pixels = width * (depth_scale / 500.0)
+            depth_scaling_factor = max_shift_pixels / 255.0  # Factor to multiply 0-255 depth value by
+            
             fliped = 0 if mode == "Parallel" else width
             
             if highsodium_optimization:
@@ -85,7 +91,8 @@ class SBS_V2_External_Depth_by_SamSeen:
                 sbs_image[:, width:width*2, :] = img_array
                 
                 # Calculate pixel shifts matrix
-                pixel_shifts = (depth_array * depth_scaling).astype(np.int32)
+                # pixel_shift = depth_value * depth_scaling_factor
+                pixel_shifts = (depth_array * depth_scaling_factor).astype(np.int32)
                 pixel_shifts = np.clip(pixel_shifts, 0, width - 1)
                 
                 pbar = ProgressBar(width)
@@ -148,7 +155,7 @@ class SBS_V2_External_Depth_by_SamSeen:
                             d_val = depth_map_img.getpixel((x,y))
                             if isinstance(d_val, tuple): d_val = d_val[0]
                             
-                            pixel_shift = int(d_val * depth_scaling)
+                            pixel_shift = int(d_val * depth_scaling_factor)
                             new_x = x + pixel_shift
                             
                             # Clamp
