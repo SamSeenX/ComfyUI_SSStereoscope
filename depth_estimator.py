@@ -57,11 +57,26 @@ class DepthEstimator:
     """
     A depth estimation implementation using the Depth-Anything-V2-Small model from Hugging Face.
     """
-    def __init__(self):
+    def __init__(self, model_type="Depth Anything V2 - Small"):
         self.processor = None
         self.model = None
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model_id = "depth-anything/Depth-Anything-V2-Small-hf"
+        self.current_model_type = model_type
+        
+        # Model ID mapping
+        self.model_map = {
+            "Depth Anything V2 - Small": "depth-anything/Depth-Anything-V2-Small-hf",
+            "Depth Anything V2 - Base": "depth-anything/Depth-Anything-V2-Base-hf",
+            "Depth Anything V2 - Large": "depth-anything/Depth-Anything-V2-Large-hf",
+            "Depth Anything V2 - Giant": "depth-anything/Depth-Anything-V2-Giant-hf",
+            # V3 models use different naming convention on HF
+            "Depth Anything V3 - Small": "depth-anything/DA3-Small", 
+            "Depth Anything V3 - Base": "depth-anything/DA3-Base",
+            "Depth Anything V3 - Large": "depth-anything/DA3-Large",
+        }
+        
+        # Fallback to V2 Small if unknown
+        self.model_id = self.model_map.get(model_type, "depth-anything/Depth-Anything-V2-Small-hf")
         self.blur_radius = 15  # Default blur radius
 
     def load_model(self):

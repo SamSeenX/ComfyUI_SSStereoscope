@@ -58,6 +58,8 @@ class SBS_V2_by_SamSeen:
                 "invert_depth": ("BOOLEAN", {"default": False}),
                 "mode": (["Parallel", "Cross-eyed"], {"default": "Cross-eyed"}),
                 "highsodium_optimization": ("BOOLEAN", {"default": False, "label_on": "Fast (HighSodium)", "label_off": "Legacy"}),
+                "model": (["Depth Anything V2 - Small", "Depth Anything V2 - Base", "Depth Anything V2 - Large", 
+                           "Depth Anything V3 - Small", "Depth Anything V3 - Base", "Depth Anything V3 - Large"], {"default": "Depth Anything V2 - Small"}),
             }
         }
 
@@ -67,14 +69,14 @@ class SBS_V2_by_SamSeen:
     CATEGORY = "👀 SamSeen"
     DESCRIPTION = "Create stunning side-by-side (SBS) stereoscopic images and videos with automatic depth map generation using Depth-Anything-V2. Perfect for VR content, 3D displays, and image sequences!"
 
-    def load_depth_model(self):
+    def load_depth_model(self, model_version="Depth Anything V2 - Small"):
         """
         Load the depth model.
         """
-        # Create a new instance of our depth model if needed
-        if self.depth_model is None:
-            print("Creating new DepthEstimator instance")
-            self.depth_model = DepthEstimator()
+        # Create a new instance of our depth model if needed or if model version changed
+        if self.depth_model is None or self.depth_model.current_model_type != model_version:
+            print(f"Creating new DepthEstimator instance for {model_version}")
+            self.depth_model = DepthEstimator(model_version)
 
         # Load the model
         try:
@@ -87,13 +89,13 @@ class SBS_V2_by_SamSeen:
 
         return self.depth_model
 
-    def generate_depth_map(self, image):
+    def generate_depth_map(self, image, model_version="Depth Anything V2 - Small"):
         """
         Generate a depth map from an image or batch of images.
         """
         try:
             # Load the model if not already loaded
-            depth_model = self.load_depth_model()
+            depth_model = self.load_depth_model(model_version)
 
             # Process the image
             B, H, W, C = image.shape
@@ -155,7 +157,7 @@ class SBS_V2_by_SamSeen:
             print(f"Creating blank depth map with shape: {(B, H, W, C)}")
             return torch.zeros((B, H, W, C), dtype=torch.float32)
 
-    def process(self, base_image, depth_scale, blur_radius, invert_depth=False, mode="Cross-eyed", highsodium_optimization=False):
+    def process(self, base_image, depth_scale, blur_radius, invert_depth=False, mode="Cross-eyed", highsodium_optimization=False, model="Depth Anything V2 - Small"):
         """
         Create a side-by-side (SBS) stereoscopic image from a standard image or image sequence.
         The depth map is automatically generated using our custom depth estimation approach.
@@ -181,8 +183,8 @@ class SBS_V2_by_SamSeen:
             self.depth_model.blur_radius = blur_radius
 
         # Generate depth map
-        print(f"Generating depth map with blur_radius={blur_radius}, invert_depth={invert_depth}...")
-        depth_map = self.generate_depth_map(base_image)
+        print(f"Generating depth map using {model} with blur_radius={blur_radius}, invert_depth={invert_depth}...")
+        depth_map = self.generate_depth_map(base_image, model)
 
         # Get batch size
         B = base_image.shape[0]

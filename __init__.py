@@ -34,6 +34,23 @@ except Exception as e:
         def error(self, error):
             return (f"ERROR: {error}",)
 
+# Import the SBS V2.1 (External Depth) implementation
+try:
+    from .sbs_v2_with_external_depth import SBS_V2_External_Depth_by_SamSeen
+    print("Successfully imported SBS_V2_External_Depth_by_SamSeen")
+except Exception as e:
+    print(f"Error importing SBS_V2_External_Depth_by_SamSeen: {e}")
+    # Create a placeholder class
+    class SBS_V2_External_Depth_by_SamSeen:
+        @classmethod
+        def INPUT_TYPES(s):
+            return {"required": {"error": ("STRING", {"default": "Error loading SBS_V2_External_Depth_by_SamSeen"})}}
+        RETURN_TYPES = ("STRING",)
+        FUNCTION = "error"
+        CATEGORY = "👀 SamSeen"
+        def error(self, error):
+            return (f"ERROR: {error}",)
+
 # Import the video utility nodes
 try:
     # First try to import directly
@@ -97,6 +114,7 @@ except Exception as e:
 NODE_CLASS_MAPPINGS = {
     "SBS_External_Depthmap_by_SamSeen": SBS_External_Depthmap_by_SamSeen,
     "SBS_V2_by_SamSeen": SBS_V2_by_SamSeen,
+    "SBS_V2_External_Depth_by_SamSeen": SBS_V2_External_Depth_by_SamSeen,
     "SBS_Video_Uploader": SBSVideoUploader,
     "SBS_Image_Uploader": SBSImageUploader,
     "SBS_Video_Combiner": SBSVideoCombiner,
@@ -106,6 +124,7 @@ NODE_CLASS_MAPPINGS = {
 NODE_DISPLAY_NAME_MAPPINGS = {
     "SBS_External_Depthmap_by_SamSeen": "👀 SBS by SamSeen (Legacy)",
     "SBS_V2_by_SamSeen": "👀 SBS V2 by SamSeen",
+    "SBS_V2_External_Depth_by_SamSeen": "👀 SBS V2.1 (External Depth)",
     "SBS_Video_Uploader": "👀 SBS Video Uploader by SamSeen",
     "SBS_Image_Uploader": "👀 SBS Image Uploader by SamSeen",
     "SBS_Video_Combiner": "👀 SBS Video Combiner by SamSeen",

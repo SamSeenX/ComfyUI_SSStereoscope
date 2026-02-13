@@ -5,11 +5,11 @@
 
 > Transform any 2D image into immersive stereoscopic 3D content in ComfyUI.
 
-The SideBySide Stereoscope Node is a cutting-edge 2D-to-3D conversion tool designed for ComfyUI. Powered by Depth-Anything-V2, it automatically creates high-quality depth maps and generates side-by-side (SBS) 3D images and videos perfect for VR headsets and 3D displays.
+The SideBySide Stereoscope Node is a cutting-edge 2D-to-3D conversion tool designed for ComfyUI. Powered by Depth-Anything (V2 & V3), it automatically creates high-quality depth maps and generates side-by-side (SBS) 3D images and videos perfect for VR headsets and 3D displays.
 
 ## ✨ Features
 
-- 🧠 **AI-Powered Depth** - Uses Depth-Anything-V2 for automatic, high-quality depth estimation.
+- 🧠 **AI-Powered Depth** - Uses Depth-Anything (V2 & V3) for automatic, high-quality depth estimation.
 - 👓 **Stereoscopic Modes** - Supports Parallel and Cross-eyed viewing techniques.
 - 🎥 **Video Support** - Full workflow for converting videos to 3D (upload, process, combine).
 - 🎛️ **Fine Control** - Adjust depth scale, blur radius, and depth inversion.
