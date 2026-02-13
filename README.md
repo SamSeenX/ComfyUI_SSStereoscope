@@ -57,6 +57,9 @@ _(Note: The AI model will download automatically on first use.)_
   - `depth_scale`: Intensity of the 3D effect.
   - `mode`: Cross-eyed vs Parallel.
   - `highsodium_optimization`: Enable vectorized algorithm for faster processing (may produce slightly different results).
+- **👀 SBS V2.1 (External Depth)**: _New in v2.1!_ Uses the fast V2 engine (HighSodium) but accepts your custom Depth Maps.
+  - Fixes "reducing" artifacts found in the legacy node.
+  - Supports `depth_scale` up to 200.
 - **👀 SBS Video Uploader**: Converts input video to image sequence.
 - **👀 SBS Video Combiner**: Merges processed frames back into a video.
 
