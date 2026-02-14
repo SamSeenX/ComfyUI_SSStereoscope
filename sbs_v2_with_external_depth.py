@@ -133,11 +133,14 @@ class SBS_V2_External_Depth_by_SamSeen:
                 pixel_shifts = (depth_array * depth_scaling_factor).astype(np.int32)
                 pixel_shifts = np.clip(pixel_shifts, 0, width - 1)
                 
-                pbar = ProgressBar(width)
+                pbar = ProgressBar(20) # Throttled to 20 updates per image
+                update_step = max(1, width // 20)
                 
                 # Process columns Right-to-Left (x range: width-1 -> 0)
                 for x in range(width - 1, -1, -1):
-                    pbar.update(1)
+                    # Throttled update
+                    if (width - 1 - x) % update_step == 0:
+                        pbar.update(1)
                     
                     # Source pixels for this column
                     source_pixels = img_array[:, x, :]
@@ -167,10 +170,12 @@ class SBS_V2_External_Depth_by_SamSeen:
             
             else:
                 # Legacy Algorithm (Pixel-by-Pixel)
-                 pbar = ProgressBar(height)
+                 pbar = ProgressBar(20) # Throttled to 20 updates
+                 update_step = max(1, height // 20)
                  
                  for y in tqdm.tqdm(range(height)):
-                    pbar.update(1)
+                    if y % update_step == 0:
+                        pbar.update(1)
                     for x in range(width):
                         try:
                             d_val = depth_map_img.getpixel((x,y))
