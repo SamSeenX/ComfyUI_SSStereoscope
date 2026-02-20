@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 - Page Not Found | ComfyUI SSStereoscope</title>
+
+    <meta name="robots" content="noindex, follow" />
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .error-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 2rem;
+      }
+      .error-code {
+        font-size: 6rem;
+        font-weight: 800;
+        background: linear-gradient(to right, #3b82f6, #c084fc);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        line-height: 1;
+        margin-bottom: 1rem;
+      }
+      .error-message {
+        font-size: 1.5rem;
+        color: var(--slate-300);
+        margin-bottom: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="container navbar-inner flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <a href="/" class="flex items-center gap-2">
+            <i data-lucide="glasses" class="lucide"></i>
+            <span class="logo-text">SSStereoscope</span>
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <main class="error-container">
+      <i
+        data-lucide="broken-link"
+        style="
+          width: 4rem;
+          height: 4rem;
+          color: var(--slate-500);
+          margin-bottom: 1.5rem;
+        "
+      ></i>
+      <h1 class="error-code">404</h1>
+      <p class="error-message">
+        Oops! The page you're looking for has wandered off into another
+        dimension.
+      </p>
+
+      <a
+        href="/"
+        class="btn-primary flex justify-center items-center gap-2 inline-flex"
+      >
+        <i data-lucide="home" class="lucide"></i> Return Home
+      </a>
+    </main>
+
+    <!-- Initialize Icons -->
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>

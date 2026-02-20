@@ -1,0 +1,29 @@
+# ComfyUI SSStereoscope
+
+> Transform any 2D image into immersive stereoscopic 3D content within ComfyUI. Powered by Depth-Anything V2 &amp; V3, featuring HighSodium optimization, and full video support for VR headsets.
+
+## Project Details
+- **Author:** SamSeen (SamSeenX)
+- **Repository:** https://github.com/SamSeenX/ComfyUI_SSStereoscope
+- **Category:** Multimedia Application, AI, 3D
+- **Operating System:** Any (Runs inside ComfyUI)
+
+## How It Works
+1. **Input:** Feeds an AI-generated art, photograph, or video frame into the SBS V2 Node.
+2. **Processing:** The node calculates the offset for the left and right eyes based on a dynamic `depth_scale`.
+3. **Output:** A Side-by-Side (SBS) image or video ready to be viewed on VR headsets, 3D displays, or using the cross-eye technique.
+
+## Key Features
+- **AI-Powered Depth:** Utilizes state-of-the-art Depth-Anything (V2 & V3) models for depth estimation.
+- **HighSodium Optimization:** A vectorized algorithm ensuring up to 4x faster rendering speeds for bulk tasks.
+- **Full Video Pipeline:** Turn flat MP4s into spatial videos with dedicated node setups.
+- **Granular Control:** Adjust depth scale, blur radius, and easily switch between Parallel or Cross-eyed modes.
+- **External Depth Maps:** Feed custom depth data into the V2.1 fast generator.
+
+## SEO and Links
+- Site URLs:
+  - Homepage: https://sbs.samseen.dev/
+  - Install Guide: https://sbs.samseen.dev/#install
+  - Features: https://sbs.samseen.dev/#features
+
+This site is statically hosted and uses Semantic HTML and Vanilla CSS for lightning-fast speeds.

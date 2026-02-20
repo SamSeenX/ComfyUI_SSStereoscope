@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      ComfyUI SSStereoscope | The Ultimate 2D to 3D SBS Node by SamSeen
+    </title>
+
+    <!-- SEO Meta Tags -->
+    <link rel="canonical" href="https://sbs.samseen.dev/" />
+    <meta
+      name="description"
+      content="Transform any 2D image into immersive stereoscopic 3D content within ComfyUI. Powered by Depth-Anything V2 & V3, featuring HighSodium optimization, and full video support for VR headsets."
+    />
+    <meta
+      name="keywords"
+      content="ComfyUI, Stereoscopic, 3D conversion, SBS, VR, Virtual Reality, Depth-Anything, AI Video, SamSeen, Side-by-Side 3D"
+    />
+    <meta name="author" content="SamSeen" />
+
+    <!-- Open Graph for Social Sharing -->
+    <meta
+      property="og:title"
+      content="ComfyUI SSStereoscope - AI 3D Conversion"
+    />
+    <meta
+      property="og:description"
+      content="Easily generate stunning side-by-side 3D visuals for videos and images directly in ComfyUI."
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:image"
+      content="https://sbs.samseen.dev/assets/og-image.jpg"
+    />
+    <meta property="og:url" content="https://sbs.samseen.dev/" />
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- AI Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "ComfyUI_SSStereoscope",
+        "url": "https://sbs.samseen.dev/",
+        "operatingSystem": "Any (Runs in ComfyUI)",
+        "applicationCategory": "MultimediaApplication",
+        "author": {
+          "@type": "Person",
+          "name": "SamSeen",
+          "url": "https://github.com/SamSeenX"
+        },
+        "description": "A custom node for ComfyUI that converts 2D images and videos into Side-by-Side (SBS) 3D stereoscopic content using Depth-Anything AI models.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "codeRepository": "https://github.com/SamSeenX/ComfyUI_SSStereoscope"
+      }
+    </script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar">
+      <div class="container navbar-inner flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="glasses" class="lucide"></i>
+          <span class="logo-text">SSStereoscope</span>
+        </div>
+        <div class="hidden md-block">
+          <div class="nav-links">
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#how-it-works" class="nav-link">How it Works</a>
+            <a href="#install" class="nav-link">Install</a>
+          </div>
+        </div>
+        <div>
+          <a
+            href="https://github.com/SamSeenX/ComfyUI_SSStereoscope"
+            target="_blank"
+            class="btn-github flex items-center gap-2"
+          >
+            <i data-lucide="github" class="lucide"></i> GitHub
+          </a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Top Leaderboard Ad Spot (728x90) -->
+    <div class="ad-section flex justify-center">
+      <script type="text/javascript">
+        atOptions = {
+          key: "686a6b06ee85531d04f7e30f43417977",
+          format: "iframe",
+          height: 90,
+          width: 728,
+          params: {},
+        };
+      </script>
+      <script
+        type="text/javascript"
+        src="https://www.highperformanceformat.com/686a6b06ee85531d04f7e30f43417977/invoke.js"
+      ></script>
+    </div>
+
+    <!-- Hero Section -->
+    <main>
+      <section class="hero container text-center">
+        <div class="badge">
+          v2.1 Update: HighSodium Optimization & Custom Depth Maps
+        </div>
+        <h1 class="hero-title">
+          Immersive 3D Generation <br />
+          Inside ComfyUI
+        </h1>
+        <p class="hero-subtitle">
+          Transform any 2D image or video into stunning Side-by-Side (SBS)
+          stereoscopic 3D. Powered by
+          <strong>Depth-Anything (V2 & V3)</strong>, built for VR headsets, 3D
+          displays, and cross-eyed viewing.
+        </p>
+
+        <div class="action-buttons flex justify-center gap-4">
+          <a
+            href="#install"
+            class="btn-primary flex justify-center items-center gap-2"
+          >
+            <i data-lucide="download" class="lucide"></i> Get Started Now
+          </a>
+          <a
+            href="https://github.com/SamSeenX/ComfyUI_SSStereoscope"
+            target="_blank"
+            class="btn-secondary flex justify-center items-center gap-2"
+          >
+            <i data-lucide="star" class="lucide"></i> Star on GitHub
+          </a>
+        </div>
+      </section>
+
+      <!-- Features Grid -->
+      <section id="features" class="features-section">
+        <div class="container">
+          <div class="section-header">
+            <h2 class="section-title">Unmatched 2D to 3D Capabilities</h2>
+            <p class="section-subtitle">
+              Everything you need to create production-ready 3D content directly
+              within your existing AI workflows.
+            </p>
+          </div>
+
+          <div class="features-grid">
+            <!-- Feature 1 -->
+            <div class="feature-card">
+              <div class="feature-icon-wrapper">
+                <i data-lucide="brain-circuit" class="lucide"></i>
+              </div>
+              <h3 class="feature-title">AI-Powered Depth</h3>
+              <p class="feature-desc">
+                Utilizes state-of-the-art Depth-Anything (V2 & V3) models for
+                automatic, pixel-perfect depth estimation without external maps.
+              </p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-card">
+              <div class="feature-icon-wrapper">
+                <i data-lucide="zap" class="lucide"></i>
+              </div>
+              <h3 class="feature-title">HighSodium Optimization</h3>
+              <p class="feature-desc">
+                Toggle the performance mode to utilize a vectorized algorithm,
+                resulting in up to 4x faster rendering speeds for bulk tasks.
+              </p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-card">
+              <div class="feature-icon-wrapper">
+                <i data-lucide="film" class="lucide"></i>
+              </div>
+              <h3 class="feature-title">Full Video Pipeline</h3>
+              <p class="feature-desc">
+                Includes dedicated nodes for video uploading, frame-by-frame
+                processing, and recombination. Turn flat MP4s into spatial
+                video.
+              </p>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="feature-card">
+              <div class="feature-icon-wrapper">
+                <i data-lucide="sliders-horizontal" class="lucide"></i>
+              </div>
+              <h3 class="feature-title">Granular Control</h3>
+              <p class="feature-desc">
+                Resolution-relative depth scaling prevents artifacting. Adjust
+                depth scale, blur radius, and easily switch between Parallel or
+                Cross-eyed modes.
+              </p>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="feature-card">
+              <div class="feature-icon-wrapper">
+                <i data-lucide="layers" class="lucide"></i>
+              </div>
+              <h3 class="feature-title">External Depth Maps</h3>
+              <p class="feature-desc">
+                Already have a depth map from another node? The V2.1 engine
+                allows you to feed custom depth data directly into the fast
+                generator.
+              </p>
+            </div>
+
+            <!-- Feature 6 (Ad Spot) -->
+            <div class="feature-card feature-ad-card">
+              <script type="text/javascript">
+                atOptions = {
+                  key: "d015a0e0e1429c5ea72e9cfdc5a962ab",
+                  format: "iframe",
+                  height: 250,
+                  width: 300,
+                  params: {},
+                };
+              </script>
+              <script
+                type="text/javascript"
+                src="https://www.highperformanceformat.com/d015a0e0e1429c5ea72e9cfdc5a962ab/invoke.js"
+              ></script>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- How it works (SEO Rich Text) -->
+      <section id="how-it-works" class="how-it-works">
+        <div class="container-sm">
+          <h2 class="section-title text-center">
+            How the SBS Workflow Operates
+          </h2>
+
+          <article class="prose">
+            <p>
+              Creating VR-ready content has never been easier.
+              <strong>ComfyUI_SSStereoscope</strong> integrates directly into
+              your node graph. By feeding an image into the main
+              <code>SBS V2</code> node, the system utilizes advanced machine
+              learning to estimate distance and depth.
+            </p>
+
+            <ul>
+              <li>
+                <div class="step-icon">
+                  <i data-lucide="arrow-right-to-line" class="lucide"></i>
+                </div>
+                <div class="step-text">
+                  <strong>1. Input</strong>
+                  Pass your AI-generated art, photograph, or video frame into
+                  the node.
+                </div>
+              </li>
+              <li>
+                <div class="step-icon">
+                  <i data-lucide="cpu" class="lucide"></i>
+                </div>
+                <div class="step-text">
+                  <strong>2. Processing</strong>
+                  The node calculates the offset for the left and right eyes
+                  based on your specified <code>depth_scale</code>.
+                </div>
+              </li>
+              <li>
+                <div class="step-icon">
+                  <i data-lucide="glasses" class="lucide"></i>
+                </div>
+                <div class="step-text">
+                  <strong>3. Output</strong>
+                  A pristine Side-by-Side (SBS) image is generated, ready to be
+                  viewed on the Meta Quest, Apple Vision Pro, Xreal glasses, or
+                  directly on your screen using the cross-eye technique.
+                </div>
+              </li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- Mid-page Ad Banner (Side-by-Side 300x250 Rectangles) -->
+      <div id="install" class="mid-ad-banner flex justify-center gap-6">
+        <!-- Ad 1: Left -->
+        <div class="ad-rectangle-wrapper">
+          <script type="text/javascript">
+            atOptions = {
+              key: "d015a0e0e1429c5ea72e9cfdc5a962ab",
+              format: "iframe",
+              height: 250,
+              width: 300,
+              params: {},
+            };
+          </script>
+          <script
+            type="text/javascript"
+            src="https://www.highperformanceformat.com/d015a0e0e1429c5ea72e9cfdc5a962ab/invoke.js"
+          ></script>
+        </div>
+
+        <!-- Ad 2: Right -->
+        <div class="ad-rectangle-wrapper hidden md-block">
+          <script type="text/javascript">
+            atOptions = {
+              key: "d015a0e0e1429c5ea72e9cfdc5a962ab",
+              format: "iframe",
+              height: 250,
+              width: 300,
+              params: {},
+            };
+          </script>
+          <script
+            type="text/javascript"
+            src="https://www.highperformanceformat.com/d015a0e0e1429c5ea72e9cfdc5a962ab/invoke.js"
+          ></script>
+        </div>
+      </div>
+
+      <!-- Installation -->
+      <section class="install-section">
+        <div class="container-sm">
+          <div class="section-header">
+            <h2 class="section-title">Quick Start Installation</h2>
+            <p class="section-subtitle">
+              Install via ComfyUI Manager or manually via the command line.
+            </p>
+          </div>
+
+          <div class="code-block-wrapper">
+            <button
+              onclick="copyCode()"
+              class="copy-button"
+              title="Copy to clipboard"
+            >
+              <i data-lucide="copy" class="lucide"></i>
+            </button>
+            <pre class="code-text"><code id="code-block">cd ComfyUI/custom_nodes
+git clone https://github.com/SamSeenX/ComfyUI_SSStereoscope.git
+cd ComfyUI_SSStereoscope
+pip install -r requirements.txt</code></pre>
+          </div>
+
+          <p class="install-note">
+            Note: The AI depth model will automatically download on its first
+            run. Requires Python >= 3.8.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container footer-content">
+        <div class="footer-creator flex items-center gap-2">
+          <i data-lucide="code" class="lucide"></i>
+          <span
+            >Created with ❤️ by
+            <a href="https://github.com/SamSeenX">SamSeen</a></span
+          >
+        </div>
+
+        <div class="footer-links">
+          <a
+            href="https://youtube.com/@SamSeenDaily"
+            target="_blank"
+            class="footer-link yt flex items-center gap-2"
+          >
+            <i data-lucide="youtube" class="lucide"></i> SamSeen Daily
+          </a>
+          <a
+            href="https://github.com/SamSeenX"
+            target="_blank"
+            class="footer-link flex items-center gap-2"
+          >
+            <i data-lucide="github" class="lucide"></i> More Tools
+          </a>
+          <a
+            href="https://buymeacoffee.com/SamSeen"
+            target="_blank"
+            class="footer-link coffee flex items-center gap-2"
+          >
+            <i data-lucide="coffee" class="lucide"></i> Buy Me a Coffee
+          </a>
+        </div>
+      </div>
+      <div class="footer-legal">
+        <p>
+          ComfyUI SSStereoscope is open-source software (MIT License). Not
+          officially affiliated with ComfyUI.
+        </p>
+      </div>
+    </footer>
+
+    <!-- Initialize Icons & Copy Function -->
+    <script src="script.js"></script>
+  </body>
+</html>
