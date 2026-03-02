@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.1.8] - 2026-03-02
+
+### Added
+
+- **Audio Output for SBS Video Uploader** (Issue #20):
+  - New `AUDIO` output that extracts the audio track from the uploaded video.
+  - Audio is automatically trimmed to stay in sync with frame selection (`skip_first_frames`, `select_every_nth`, `frame_load_cap`).
+  - Can be wired directly to the `SBS Video Combiner`'s audio input for seamless audio pass-through.
+- **FPS Outputs for SBS Video Uploader**:
+  - `source_fps` (`FLOAT`): The original video frame rate.
+  - `target_fps` (`FLOAT`): Effective fps adjusted for `select_every_nth` (calculated as `source_fps / select_every_nth`). Wire this directly to the combiner's `frame_rate` for perfect sync.
+
+### Changed
+
+- **SBS Video Combiner `frame_rate` now accepts FLOAT**:
+  - Changed from `INT` to `FLOAT` for precise frame rate control (e.g., 23.976, 29.97).
+  - Can now be directly wired from the Video Uploader's `fps` output.
+
+### Fixed
+
+- **Concurrent workflow safety**: Temp files now use unique names (UUID-based) to prevent collisions when multiple workflows run simultaneously.
+
 ## [2.1.7] - 2026-02-14
 
 ### Fixed

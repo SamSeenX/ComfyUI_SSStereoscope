@@ -32,6 +32,13 @@ def test_video_uploader():
     input_types = SBSVideoUploader.INPUT_TYPES()
     print(f"INPUT_TYPES: {input_types}")
     
+    # Verify return types include audio and fps outputs
+    assert SBSVideoUploader.RETURN_TYPES == ("IMAGE", "INT", "AUDIO", "FLOAT", "FLOAT"), \
+        f"Expected RETURN_TYPES ('IMAGE', 'INT', 'AUDIO', 'FLOAT', 'FLOAT'), got {SBSVideoUploader.RETURN_TYPES}"
+    assert SBSVideoUploader.RETURN_NAMES == ("images", "frame_count", "audio", "source_fps", "target_fps"), \
+        f"Expected RETURN_NAMES ('images', 'frame_count', 'audio', 'source_fps', 'target_fps'), got {SBSVideoUploader.RETURN_NAMES}"
+    print("RETURN_TYPES and RETURN_NAMES verified: includes audio, source_fps, and target_fps outputs")
+    
     print("SBSVideoUploader test completed")
 
 def test_image_uploader():

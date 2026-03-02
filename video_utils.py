@@ -1,5 +1,6 @@
 import os
 import subprocess
+import uuid
 import numpy as np
 import torch
 from PIL import Image
@@ -148,7 +149,7 @@ def combine_frames_to_video(frames, output_path, fps=30, audio_path=None):
         raise ValueError("No frames provided")
 
     # Create temporary directory for frames if it doesn't exist
-    temp_dir = os.path.join(folder_paths.get_temp_directory(), "frames")
+    temp_dir = os.path.join(folder_paths.get_temp_directory(), f"frames_{uuid.uuid4().hex[:8]}")
     os.makedirs(temp_dir, exist_ok=True)
 
     # Save frames as images
@@ -192,6 +193,100 @@ def combine_frames_to_video(frames, output_path, fps=30, audio_path=None):
 
     return output_path
 
+def extract_audio_from_video(video_path, start_offset=0.0, max_duration=None):
+    """Extract audio from a video file and return as a ComfyUI AUDIO dict.
+    
+    Args:
+        video_path: Path to the video file.
+        start_offset: Seconds to skip from the start (for skip_first_frames sync).
+        max_duration: Maximum audio duration in seconds (for frame_load_cap sync).
+    
+    Returns:
+        dict with 'waveform' (torch.Tensor) and 'sample_rate' (int), or None if no audio.
+    """
+    if ffmpeg_path is None:
+        print("Warning: ffmpeg not found, cannot extract audio.")
+        return None
+
+    # Create a temporary WAV file
+    temp_audio_path = os.path.join(folder_paths.get_temp_directory(), f"extracted_audio_{uuid.uuid4().hex[:8]}.wav")
+    os.makedirs(os.path.dirname(temp_audio_path), exist_ok=True)
+
+    # Build ffmpeg command to extract audio
+    ffmpeg_cmd = [
+        ffmpeg_path,
+        "-y",
+    ]
+
+    # Add start offset if needed
+    if start_offset > 0:
+        ffmpeg_cmd.extend(["-ss", str(start_offset)])
+
+    ffmpeg_cmd.extend(["-i", video_path])
+
+    # Add duration limit if needed
+    if max_duration is not None and max_duration > 0:
+        ffmpeg_cmd.extend(["-t", str(max_duration)])
+
+    ffmpeg_cmd.extend([
+        "-vn",           # No video
+        "-acodec", "pcm_s16le",  # WAV format
+        "-ar", "44100",  # Sample rate
+        "-ac", "2",      # Stereo
+        temp_audio_path
+    ])
+
+    try:
+        result = subprocess.run(ffmpeg_cmd, capture_output=True, text=True)
+        if result.returncode != 0:
+            # Video might not have an audio track
+            print(f"Note: No audio track found in video (or extraction failed).")
+            return None
+    except Exception as e:
+        print(f"Warning: Could not extract audio: {e}")
+        return None
+
+    # Verify the file was created and has content
+    if not os.path.exists(temp_audio_path) or os.path.getsize(temp_audio_path) == 0:
+        return None
+
+    # Load the WAV file
+    try:
+        import scipy.io.wavfile
+        sample_rate, audio_data = scipy.io.wavfile.read(temp_audio_path)
+
+        # Convert to float32 and normalize to [-1, 1]
+        if audio_data.dtype == np.int16:
+            audio_data = audio_data.astype(np.float32) / 32768.0
+        elif audio_data.dtype == np.int32:
+            audio_data = audio_data.astype(np.float32) / 2147483648.0
+        elif audio_data.dtype != np.float32:
+            audio_data = audio_data.astype(np.float32)
+
+        # Ensure 2D (samples, channels)
+        if audio_data.ndim == 1:
+            audio_data = audio_data[:, np.newaxis]
+
+        # Convert to torch tensor: (batch=1, channels, samples)
+        waveform = torch.from_numpy(audio_data.T).unsqueeze(0)
+
+        # Clean up temp file
+        try:
+            os.remove(temp_audio_path)
+        except:
+            pass
+
+        return {"waveform": waveform, "sample_rate": sample_rate}
+
+    except Exception as e:
+        print(f"Warning: Could not load extracted audio: {e}")
+        # Clean up temp file
+        try:
+            os.remove(temp_audio_path)
+        except:
+            pass
+        return None
+
 class SBSVideoUploader:
     @classmethod
     def INPUT_TYPES(s):
@@ -222,15 +317,15 @@ class SBSVideoUploader:
             }
         }
 
-    RETURN_TYPES = ("IMAGE", "INT")
-    RETURN_NAMES = ("images", "frame_count")
+    RETURN_TYPES = ("IMAGE", "INT", "AUDIO", "FLOAT", "FLOAT")
+    RETURN_NAMES = ("images", "frame_count", "audio", "source_fps", "target_fps")
     FUNCTION = "load_video"
     CATEGORY = "👀 SamSeen"
 
     def load_video(self, video, max_width, max_height, frame_load_cap=0, skip_first_frames=0, select_every_nth=1):
         if video == "none":
             # Return an empty tensor if no video is selected
-            return (torch.zeros((0, 512, 512, 3)), 0)
+            return (torch.zeros((0, 512, 512, 3)), 0, None, 0.0, 0.0)
 
         try:
             video_path = os.path.join(folder_paths.get_input_directory(), video)
@@ -241,7 +336,7 @@ class SBSVideoUploader:
                 raise ValueError(f"Could not open video file: {video_path}")
         except Exception as e:
             print(f"Error loading video: {e}")
-            return (torch.zeros((0, 512, 512, 3)), 0)
+            return (torch.zeros((0, 512, 512, 3)), 0, None, 0.0, 0.0)
 
         # Get video properties
         fps = cap.get(cv2.CAP_PROP_FPS)
@@ -288,11 +383,26 @@ class SBSVideoUploader:
 
         cap.release()
 
+        # Extract audio with sync trimming
+        audio = None
+        if fps > 0:
+            # Calculate audio start offset from skipped frames
+            start_offset = skip_first_frames / fps if skip_first_frames > 0 else 0.0
+
+            # Calculate max audio duration to match extracted frames
+            # Total source frames consumed = frame_count * select_every_nth
+            max_duration = (frame_count * select_every_nth) / fps if frame_count > 0 else None
+
+            audio = extract_audio_from_video(video_path, start_offset, max_duration)
+
+        # Calculate target fps (adjusted for select_every_nth)
+        target_fps = fps / select_every_nth if fps > 0 and select_every_nth > 0 else 0.0
+
         # Stack tensors into a batch
         if frames:
-            return (torch.stack(frames), frame_count)
+            return (torch.stack(frames), frame_count, audio, fps, target_fps)
 
-        return (torch.zeros((0, target_h, target_w, 3)), 0)
+        return (torch.zeros((0, target_h, target_w, 3)), 0, None, fps, target_fps)
 
 class SBSImageUploader:
     @classmethod
@@ -360,7 +470,7 @@ class SBSVideoCombiner:
         return {
             "required": {
                 "images": ("IMAGE",),
-                "frame_rate": ("INT", {"default": 30, "min": 1, "max": 120, "step": 1}),
+                "frame_rate": ("FLOAT", {"default": 30.0, "min": 1.0, "max": 120.0, "step": 0.01}),
                 "filename_prefix": ("STRING", {"default": "SBS_Video"}),
                 "format": (["mp4", "webm", "gif"], {"default": "mp4"}),
                 "save_output": ("BOOLEAN", {"default": True})
@@ -397,7 +507,7 @@ class SBSVideoCombiner:
             counter += 1
 
         # Create temporary directory for frames
-        temp_dir = os.path.join(folder_paths.get_temp_directory(), "frames")
+        temp_dir = os.path.join(folder_paths.get_temp_directory(), f"frames_{uuid.uuid4().hex[:8]}")
         os.makedirs(temp_dir, exist_ok=True)
 
         # Save frames as images
@@ -406,7 +516,7 @@ class SBSVideoCombiner:
             frame = Image.fromarray(frame.astype(np.uint8))
             frame.save(os.path.join(temp_dir, f"frame_{i:05d}.png"))
 
-        # Construct ffmpeg command
+        # Construct ffmpeg command - inputs first, then encoding options, then output
         ffmpeg_cmd = [
             ffmpeg_path,
             "-y",  # Overwrite output file if it exists
@@ -414,49 +524,11 @@ class SBSVideoCombiner:
             "-i", os.path.join(temp_dir, "frame_%05d.png")
         ]
 
-        # Add format-specific options
-        if format == "mp4":
-            # Check for libx264 support
-            use_libx264 = False
-            try:
-                # Simple check if libx264 is available in encoders list
-                result = subprocess.run([ffmpeg_path, "-encoders"], capture_output=True, text=True)
-                if "libx264" in result.stdout:
-                    use_libx264 = True
-            except:
-                # If check fails, assume standard ffmpeg with libx264
-                use_libx264 = True
-
-            if use_libx264:
-                ffmpeg_cmd.extend([
-                    "-c:v", "libx264",
-                    "-pix_fmt", "yuv420p",
-                    "-crf", "23"  # Quality setting (lower is better)
-                ])
-            else:
-                # Fallback to libopenh264 (often found in conda/anaconda non-GPL builds)
-                print("libx264 not found, attempting fallback to libopenh264...")
-                ffmpeg_cmd.extend([
-                    "-c:v", "libopenh264",
-                    "-pix_fmt", "yuv420p",
-                    "-b:v", "5M" 
-                ])
-        elif format == "webm":
-            ffmpeg_cmd.extend([
-                "-c:v", "libvpx-vp9",
-                "-pix_fmt", "yuv420p",
-                "-crf", "30"  # Quality setting for VP9
-            ])
-        elif format == "gif":
-            ffmpeg_cmd.extend([
-                "-filter_complex", "[0:v] split [a][b];[a] palettegen [p];[b][p] paletteuse"
-            ])
-
-        # Add audio if provided
+        # Add audio input BEFORE encoding options (ffmpeg requires all inputs first)
         audio_path = None
         if audio is not None:
             # Create a temporary WAV file for the audio
-            audio_path = os.path.join(folder_paths.get_temp_directory(), "temp_audio.wav")
+            audio_path = os.path.join(folder_paths.get_temp_directory(), f"temp_audio_{uuid.uuid4().hex[:8]}.wav")
 
             # Get audio data
             waveform = audio['waveform']
@@ -471,16 +543,63 @@ class SBSVideoCombiner:
                 
                 # Verify file was actually created before adding to command
                 if os.path.exists(audio_path):
-                    # Add audio to ffmpeg command
-                    ffmpeg_cmd.extend([
-                        "-i", audio_path,
-                        "-c:a", "aac" if format != "webm" else "libopus",
-                        "-shortest"  # End when the shortest input stream ends
-                    ])
+                    ffmpeg_cmd.extend(["-i", audio_path])
                 else:
-                     print(f"Warning: Audio file could not be created at {audio_path}")
+                    print(f"Warning: Audio file could not be created at {audio_path}")
+                    audio_path = None
             except Exception as e:
                 print(f"Warning: Could not add audio to video: {e}")
+                audio_path = None
+
+        # Add format-specific encoding options (AFTER all inputs)
+        # Note: libx264/libvpx-vp9 require even dimensions, so we pad to nearest even size
+        pad_filter = "pad=ceil(iw/2)*2:ceil(ih/2)*2"
+        if format == "mp4":
+            # Check for libx264 support
+            use_libx264 = False
+            try:
+                # Simple check if libx264 is available in encoders list
+                result = subprocess.run([ffmpeg_path, "-encoders"], capture_output=True, text=True)
+                if "libx264" in result.stdout:
+                    use_libx264 = True
+            except:
+                # If check fails, assume standard ffmpeg with libx264
+                use_libx264 = True
+
+            if use_libx264:
+                ffmpeg_cmd.extend([
+                    "-vf", pad_filter,
+                    "-c:v", "libx264",
+                    "-pix_fmt", "yuv420p",
+                    "-crf", "23"  # Quality setting (lower is better)
+                ])
+            else:
+                # Fallback to libopenh264 (often found in conda/anaconda non-GPL builds)
+                print("libx264 not found, attempting fallback to libopenh264...")
+                ffmpeg_cmd.extend([
+                    "-vf", pad_filter,
+                    "-c:v", "libopenh264",
+                    "-pix_fmt", "yuv420p",
+                    "-b:v", "5M" 
+                ])
+        elif format == "webm":
+            ffmpeg_cmd.extend([
+                "-vf", pad_filter,
+                "-c:v", "libvpx-vp9",
+                "-pix_fmt", "yuv420p",
+                "-crf", "30"  # Quality setting for VP9
+            ])
+        elif format == "gif":
+            ffmpeg_cmd.extend([
+                "-filter_complex", f"[0:v] {pad_filter},split [a][b];[a] palettegen [p];[b][p] paletteuse"
+            ])
+
+        # Add audio encoding options if audio input was added
+        if audio_path is not None and os.path.exists(audio_path):
+            ffmpeg_cmd.extend([
+                "-c:a", "aac" if format != "webm" else "libopus",
+                "-shortest"  # End when the shortest input stream ends
+            ])
 
         # Add output file
         ffmpeg_cmd.append(file_path)
